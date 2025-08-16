@@ -17,8 +17,6 @@ Usage examples:
     python -m no_comments.cli src/ --inplace
 """
 
-from __future__ import annotations
-
 import argparse
 import logging
 import sys
@@ -121,9 +119,6 @@ def _process_stdin(encoding: str) -> int:
     except ValueError as exc:
         logger.exception("Invalid stdin input: %s", exc)
         return EXIT_FAILURE
-    except UnicodeError:
-        logger.exception("Unicode error while reading from stdin or writing to stdout")
-        return EXIT_FAILURE
     except OSError:
         logger.exception("I/O error while writing to stdout")
         return EXIT_FAILURE
@@ -195,9 +190,6 @@ def _process_paths(
         return EXIT_FAILURE
     except SyntaxError:
         logger.exception("Syntax error encountered while processing files")
-        return EXIT_FAILURE
-    except UnicodeError:
-        logger.exception("Unicode error while reading or writing files")
         return EXIT_FAILURE
     except OSError:
         logger.exception("Filesystem error while processing files")

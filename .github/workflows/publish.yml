@@ -51,8 +51,6 @@ jobs:
         if: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event_name == 'release' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          # Create a PyPI "API token" in your PyPI account settings and
-          # store it as PYPI_API_TOKEN in the repo's GitHub Secrets.
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: dist
           verbose: true

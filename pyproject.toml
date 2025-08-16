@@ -24,6 +24,7 @@ urls = { Homepage = "https://pypi.org/project/no-comments/" }
 
 [project.scripts]
 no-comments = "no_comments.cli:main"
+no_comments = "no_comments.cli:main"
 
 [build-system]
 requires = ["hatchling>=1.18"]
