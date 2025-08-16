@@ -1,10 +1,26 @@
 [project]
 name = "no-comments"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.0.1dev1"
+description = "Remove all comments and docstrings from Python code using a safe AST-based transform."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
+authors = [{ name = "no-comments contributors" }]
+license = { text = "MIT License" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Typing :: Typed",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities",
+]
+urls = { Homepage = "https://pypi.org/project/no-comments/" }
 
 [project.scripts]
 no-comments = "no_comments.cli:main"

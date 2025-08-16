@@ -152,6 +152,42 @@ Project metadata:
 - Build backend: Hatchling
 - Console script: `no-comments` (entry point at `no_comments.cli:main`)
 
+## Release & Publishing
+
+Checklist before release:
+- Ensure you have a PyPI account and access to the project name "no-comments" (or choose a unique name).
+- Create a PyPI API token and add it as a GitHub Secret named PYPI_API_TOKEN in the repository settings.
+- Bump the version in pyproject.toml under [project] version to the new semantic version (e.g., "0.1.1").
+- Update README and (optionally) a CHANGELOG with notable changes.
+- Run tests locally:
+  - uv sync
+  - uv run pytest -q
+- Build locally to verify artifacts:
+  - uv build
+- Commit and tag the release:
+  - git add .
+  - git commit -m "Release vX.Y.Z"
+  - git tag vX.Y.Z
+  - git push && git push --tags
+
+Publishing options:
+- GitHub Actions (recommended):
+  - On pushing a tag like vX.Y.Z (or publishing a GitHub Release), the workflow at .github/workflows/publish.yml will:
+    - Install deps with uv, run tests, build distributions, and publish to PyPI using PYPI_API_TOKEN.
+- Manual (optional):
+  - Build: uv build
+  - Upload with Twine (ephemeral via uvx):
+    - uvx twine upload dist/*
+  - To test on TestPyPI (optional):
+    - uv build
+    - uvx twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+    - Install to verify: uvx pip install -i https://test.pypi.org/simple no-comments==X.Y.Z
+
+Post-release verification:
+- Install from PyPI and check CLI:
+  - uvx pip install no-comments
+  - uvx no-comments --help
+
 ## Limitations
 
 - This tool removes docstrings and comments only; it does not attempt to remove dead code or perform obfuscation.
