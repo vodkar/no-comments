@@ -1,7 +1,7 @@
 import sys
 from typing import Final
 
-from no_comments.cli import main as cli_main
+from shushpy.cli import main as cli_main
 
 
 def main(argv: list[str] | None = None) -> int:

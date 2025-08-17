@@ -1,4 +1,4 @@
-# no-comments/no_comments/__init__.py
+# shushpy/shushpy/__init__.py
 """
 Utilities to strip all comments and docstrings from Python source code.
 

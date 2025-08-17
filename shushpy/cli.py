@@ -1,4 +1,4 @@
-# no-comments/no_comments/cli.py
+# shushpy/shushpy/cli.py
 """
 Command-line interface for stripping comments and docstrings from Python code.
 
@@ -10,11 +10,11 @@ This CLI supports:
 
 Usage examples:
 - Single file to stdout:
-    python -m no_comments.cli path/to/file.py
+    python -m shushpy.cli path/to/file.py
 - From stdin to stdout:
-    cat file.py | python -m no_comments.cli
+    cat file.py | python -m shushpy.cli
 - In-place, recursively on a directory:
-    python -m no_comments.cli src/ --inplace
+    python -m shushpy.cli src/ --inplace
 """
 
 import argparse
@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 from typing import Final
 
-from no_comments import strip_comments, strip_path, strip_paths
+from shushpy import strip_comments, strip_path, strip_paths
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ def _build_parser() -> argparse.ArgumentParser:
         The configured ArgumentParser.
     """
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
-        prog="no-comments",
+        prog="shushpy",
         description="Remove all comments and docstrings from Python code.",
     )
 

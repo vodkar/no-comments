@@ -1,4 +1,4 @@
-# no-comments
+# shushpy
 
 Remove all comments and docstrings from Python code using a safe AST-based transform.
 
@@ -23,8 +23,8 @@ Clone and set up the project environment:
 
 ````bash
 # clone the repository
-git clone https://github.com/<your-org-or-user>/no-comments.git
-cd no-comments
+git clone https://github.com/vodkar/shushpy.git
+cd shushpy
 
 # create a project environment and install dependencies + the project
 uv sync
@@ -34,16 +34,16 @@ You can run the CLI via uv without manually activating the virtual environment:
 
 ````bash
 # show CLI help
-uv run no-comments --help
+uv run shushpy --help
 
 # strip a single file to stdout
-uv run no-comments path/to/file.py
+uv run shushpy path/to/file.py
 
 # strip a directory recursively in-place
-uv run no-comments src/ --inplace
+uv run shushpy src/ --inplace
 
 # read from stdin, write to stdout
-cat script.py | uv run no-comments
+cat script.py | uv run shushpy
 ````
 
 Alternatively, if you prefer explicit installation into the environment:
@@ -55,13 +55,13 @@ uv pip install -e .
 Then you can use the console script directly:
 
 ````bash
-no-comments --help
+shushpy --help
 ````
 
 ## CLI
 
 ````text
-usage: no-comments [-h] [--inplace] [--encoding ENCODING] [--recursive] [--no-recursive]
+usage: shushpy [-h] [--inplace] [--encoding ENCODING] [--recursive] [--no-recursive]
                    [--log-level {CRITICAL,ERROR,WARNING,INFO,DEBUG}]
                    [paths ...]
 
@@ -85,7 +85,7 @@ Notes:
 
 ## Library usage
 
-The library exposes a focused API in the `no_comments` package.
+The library exposes a focused API in the `shushpy` package.
 
 - `strip_comments(source: str) -> str`
 - `strip_file(path: str | Path, *, inplace: bool = False, encoding: str = "utf-8") -> str`
@@ -100,7 +100,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from no_comments import strip_comments, strip_file, strip_path, strip_paths
+from shushpy import strip_comments, strip_file, strip_path, strip_paths
 
 # Example 1: Process a source string
 SOURCE: Final[str] = """
@@ -139,10 +139,10 @@ Common workflows with uv:
 uv sync
 
 # run the CLI
-uv run no-comments --help
+uv run shushpy --help
 
 # run the module directly
-uv run python -m no_comments.cli --help
+uv run python -m shushpy.cli --help
 
 # build distributions (wheel and sdist)
 uv build
@@ -150,12 +150,12 @@ uv build
 
 Project metadata:
 - Build backend: Hatchling
-- Console script: `no-comments` (entry point at `no_comments.cli:main`)
+- Console script: `shushpy` (entry point at `shushpy.cli:main`)
 
 ## Release & Publishing
 
 Checklist before release:
-- Ensure you have a PyPI account and access to the project name "no-comments" (or choose a unique name).
+- Ensure you have a PyPI account and access to the project name "shushpy" (or choose a unique name).
 - Create a PyPI API token and add it as a GitHub Secret named PYPI_API_TOKEN in the repository settings.
 - Bump the version in pyproject.toml under [project] version to the new semantic version (e.g., "0.1.1").
 - Update README and (optionally) a CHANGELOG with notable changes.
@@ -181,12 +181,12 @@ Publishing options:
   - To test on TestPyPI (optional):
     - uv build
     - uvx twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-    - Install to verify: uvx pip install -i https://test.pypi.org/simple no-comments==X.Y.Z
+    - Install to verify: uvx pip install -i https://test.pypi.org/simple shushpy==X.Y.Z
 
 Post-release verification:
 - Install from PyPI and check CLI:
-  - uvx pip install no-comments
-  - uvx no-comments --help
+  - uvx pip install shushpy
+  - uvx shushpy --help
 
 ## Limitations
 

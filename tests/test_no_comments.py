@@ -8,7 +8,7 @@ from typing import Final
 
 import pytest
 
-from no_comments import strip_comments, strip_file, strip_path, strip_paths
+from shushpy import strip_comments, strip_file, strip_path, strip_paths
 
 EXIT_SUCCESS: Final[int] = 0
 EXIT_FAILURE: Final[int] = 1
@@ -196,7 +196,7 @@ def test_cli_stdin_to_stdout_roundtrip() -> None:
     source: str = '"""Doc"""\ndef f() -> int:\n    # inline comment\n    return 42\n'
     expected: str = strip_comments(source)
     proc: subprocess.CompletedProcess[str] = subprocess.run(
-        [sys.executable, "-m", "no_comments.cli"],
+        [sys.executable, "-m", "shushpy.cli"],
         input=source,
         text=True,
         capture_output=True,
@@ -215,7 +215,7 @@ def test_cli_single_file_to_stdout(tmp_path: Path) -> None:
     expected: str = strip_comments(src)
 
     proc: subprocess.CompletedProcess[str] = subprocess.run(
-        [sys.executable, "-m", "no_comments.cli", str(p)],
+        [sys.executable, "-m", "shushpy.cli", str(p)],
         text=True,
         capture_output=True,
         check=False,
@@ -239,7 +239,7 @@ def test_cli_directory_inplace(tmp_path: Path) -> None:
     expected2: str = strip_comments(src2)
 
     proc: subprocess.CompletedProcess[str] = subprocess.run(
-        [sys.executable, "-m", "no_comments.cli", str(d), "--inplace"],
+        [sys.executable, "-m", "shushpy.cli", str(d), "--inplace"],
         text=True,
         capture_output=True,
         check=False,
@@ -257,7 +257,7 @@ def test_cli_refuses_multiple_outputs_to_stdout(tmp_path: Path) -> None:
     _write_text(d / "b.py", "y: int = 2  # c\n")
 
     proc: subprocess.CompletedProcess[str] = subprocess.run(
-        [sys.executable, "-m", "no_comments.cli", str(d)],
+        [sys.executable, "-m", "shushpy.cli", str(d)],
         text=True,
         capture_output=True,
         check=False,
@@ -270,7 +270,7 @@ def test_cli_nonexistent_path_returns_failure(tmp_path: Path) -> None:
     """CLI should return failure for non-existent input paths."""
     bogus: Path = tmp_path / "does_not_exist.py"
     proc: subprocess.CompletedProcess[str] = subprocess.run(
-        [sys.executable, "-m", "no_comments.cli", str(bogus)],
+        [sys.executable, "-m", "shushpy.cli", str(bogus)],
         text=True,
         capture_output=True,
         check=False,
@@ -283,7 +283,7 @@ def test_cli_invalid_syntax_returns_failure(tmp_path: Path) -> None:
     bad: Path = tmp_path / "bad.py"
     _write_text(bad, "def f(:\n    pass\n")
     proc: subprocess.CompletedProcess[str] = subprocess.run(
-        [sys.executable, "-m", "no_comments.cli", str(bad)],
+        [sys.executable, "-m", "shushpy.cli", str(bad)],
         text=True,
         capture_output=True,
         check=False,

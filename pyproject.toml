@@ -1,11 +1,11 @@
 [project]
-name = "no-comments"
-version = "0.0.1dev1"
+name = "shushpy"
+version = "0.0.1dev2"
 description = "Remove all comments and docstrings from Python code using a safe AST-based transform."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
-authors = [{ name = "no-comments contributors" }]
+authors = [{ name = "vodkar" }]
 license = { text = "MIT License" }
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -20,11 +20,10 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Utilities",
 ]
-urls = { Homepage = "https://pypi.org/project/no-comments/" }
+urls = { Homepage = "https://pypi.org/project/shushpy/" }
 
 [project.scripts]
-no-comments = "no_comments.cli:main"
-no_comments = "no_comments.cli:main"
+shushpy = "shushpy.cli:main"
 
 [build-system]
 requires = ["hatchling>=1.18"]
