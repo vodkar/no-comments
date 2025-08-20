@@ -289,3 +289,69 @@ def test_cli_invalid_syntax_returns_failure(tmp_path: Path) -> None:
         check=False,
     )
     assert proc.returncode == EXIT_FAILURE
+
+
+def test_empty_file(tmp_path: Path) -> None:
+    """CLI should handle empty files gracefully."""
+    empty: Path = tmp_path / "empty.py"
+    _write_text(empty, "")
+    proc: subprocess.CompletedProcess[str] = subprocess.run(
+        [sys.executable, "-m", "shushpy.cli", str(empty)],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert proc.returncode == EXIT_SUCCESS
+    assert proc.stdout == ""
+
+
+def test_strip_path_ignores_site_packages_and_common_env_dirs(tmp_path: Path) -> None:
+    """Directory traversal should ignore site-packages and common virtualenv/cache dirs."""
+    root: Path = tmp_path / "project"
+    root.mkdir()
+
+    # Files that should be processed
+    a: Path = root / "a.py"
+    _write_text(a, '"""Doc"""\n# c\nX = 1  # inline\n')
+
+    # Ignored directories
+    site: Path = root / "site-packages"
+    site.mkdir()
+    _write_text(site / "sp.py", '"""Doc"""\n# c\nSP = 1  # inline\n')
+
+    venv: Path = root / ".venv"
+    (venv / "lib").mkdir(parents=True)
+    _write_text(venv / "lib" / "venv_mod.py", '"""Doc"""\n# c\nVM = 1  # inline\n')
+
+    cache: Path = root / "__pycache__"
+    cache.mkdir()
+    _write_text(cache / "cached.py", '"""Doc"""\n# c\nCACHED = 1  # inline\n')
+
+    results: dict[str, str] = strip_path(root, inplace=False, recursive=True)
+    # Only root a.py should be processed
+    assert set(results.keys()) == {str(a)}
+    assert '"""' not in results[str(a)] and "#" not in results[str(a)]
+
+
+def test_strip_path_skips_python_packages_submodules(tmp_path: Path) -> None:
+    """Recursive traversal should not descend into Python packages (directories with __init__.py)."""
+    root: Path = tmp_path / "src"
+    root.mkdir()
+
+    top_file: Path = root / "top.py"
+    _write_text(top_file, '"""Doc"""\n# c\nTOP = 1  # inline\n')
+
+    pkg: Path = root / "mypkg"
+    pkg.mkdir()
+    _write_text(pkg / "__init__.py", '"""Pkg doc"""\n# c\n')
+    _write_text(pkg / "mod.py", '"""Mod doc"""\n# c\nVAL = 2  # inline\n')
+
+    subpkg: Path = pkg / "subpkg"
+    subpkg.mkdir()
+    _write_text(subpkg / "__init__.py", '"""SubPkg doc"""\n# c\n')
+    _write_text(subpkg / "deep.py", '"""Deep doc"""\n# c\nDEEP = 3  # inline\n')
+
+    results: dict[str, str] = strip_path(root, inplace=False, recursive=True)
+    # Should only include top-level file, skip package contents
+    assert set(results.keys()) == {str(top_file)}
+    assert '"""' not in results[str(top_file)] and "#" not in results[str(top_file)]

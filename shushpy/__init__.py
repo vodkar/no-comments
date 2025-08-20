@@ -35,6 +35,29 @@ __all__: Final[list[str]] = [
 
 logger: logging.Logger = logging.getLogger(__name__)
 PYTHON_SUFFIX: Final[str] = ".py"
+IGNORED_DIR_NAMES: Final[set[str]] = {
+    # Python packaging / environments
+    "site-packages",
+    "dist-packages",
+    ".venv",
+    "venv",
+    "env",
+    ".env",
+    ".tox",
+    # Caches and VCS
+    "__pycache__",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".cache",
+    ".git",
+    ".hg",
+    ".svn",
+    # Build artifacts
+    "build",
+    "dist",
+    ".eggs",
+}
 
 
 class DocstringStripper(ast.NodeTransformer):
@@ -110,9 +133,6 @@ def strip_comments(source: str) -> str:
         SyntaxError: If the input source is not syntactically valid Python.
         ValueError: If `source` is empty or whitespace only.
     """
-    if not isinstance(source, str):
-        raise TypeError("source must be a str")
-
     if source.strip() == "":
         raise ValueError("source must not be empty or whitespace only")
 
@@ -189,18 +209,25 @@ def strip_file(
         UnicodeError: If decoding or encoding fails.
         OSError: For filesystem-related errors when writing inplace.
     """
-    p: Path = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"No such file: {p}")
-    if not p.is_file():
-        raise ValueError(f"Expected a file path, got directory or non-file: {p}")
-    if p.suffix.lower() != PYTHON_SUFFIX:
-        raise ValueError(f"Expected a Python file with '.py' suffix, got: {p.name}")
+    file_path: Path = Path(path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"No such file: {file_path}")
+    if not file_path.is_file():
+        raise ValueError(
+            f"Expected a file path, got directory or non-file: {file_path}"
+        )
+    if file_path.suffix.lower() != PYTHON_SUFFIX:
+        raise ValueError(
+            f"Expected a Python file with '.py' suffix, got: {file_path.name}"
+        )
 
-    original: str = _read_text(p, encoding=encoding)
+    original: str = _read_text(file_path, encoding=encoding)
+    if not original:
+        return original
+
     stripped: str = strip_comments(original)
     if inplace:
-        _write_text(p, stripped, encoding=encoding)
+        _write_text(file_path, stripped, encoding=encoding)
     return stripped
 
 
@@ -217,17 +244,48 @@ def _iter_python_files(root: Path, recursive: bool) -> list[Path]:
     Raises:
         ValueError: If `root` is neither a file nor a directory.
     """
+
+    def _is_ignored(p: Path) -> bool:
+        # Ignore any path that resides within a directory with an ignored name.
+        return any(part in IGNORED_DIR_NAMES for part in p.parts)
+
     if root.is_file():
-        return [root] if root.suffix.lower() == PYTHON_SUFFIX else []
+        if root.suffix.lower() != PYTHON_SUFFIX:
+            return []
+        return [] if _is_ignored(root) else [root]
 
     if root.is_dir():
         if not recursive:
             return [
                 p
                 for p in root.iterdir()
-                if p.is_file() and p.suffix.lower() == PYTHON_SUFFIX
+                if p.is_file()
+                and p.suffix.lower() == PYTHON_SUFFIX
+                and not _is_ignored(p)
             ]
-        return [p for p in root.rglob(f"*{PYTHON_SUFFIX}") if p.is_file()]
+
+        # Recursive traversal that prunes ignored and Python package directories.
+        collected: list[Path] = []
+
+        def _walk_dir(d: Path) -> None:
+            if _is_ignored(d):
+                return
+            # Collect files in current directory
+            for child in d.iterdir():
+                if child.is_file():
+                    if child.suffix.lower() == PYTHON_SUFFIX and not _is_ignored(child):
+                        collected.append(child)
+                elif child.is_dir():
+                    # Skip ignored names
+                    if child.name in IGNORED_DIR_NAMES:
+                        continue
+                    # Skip Python packages (directories containing __init__.py)
+                    if (child / "__init__.py").exists():
+                        continue
+                    _walk_dir(child)
+
+        _walk_dir(root)
+        return collected
 
     raise ValueError(f"Path is neither a file nor a directory: {root}")
 

@@ -1,6 +1,6 @@
 [project]
 name = "shushpy"
-version = "0.0.1dev2"
+version = "0.0.1dev3"
 description = "Remove all comments and docstrings from Python code using a safe AST-based transform."
 readme = "README.md"
 requires-python = ">=3.12"
