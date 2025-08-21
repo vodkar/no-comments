@@ -20,7 +20,10 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Utilities",
 ]
-urls = { Homepage = "https://pypi.org/project/shushpy/" }
+
+[project.urls]
+Homepage = "https://pypi.org/project/shushpy"
+GitHub = "https://github.com/vodkar/shushpy"
 
 [project.scripts]
 shushpy = "shushpy.cli:main"
